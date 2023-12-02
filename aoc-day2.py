@@ -1,10 +1,11 @@
+# Part 1
 MAX_CUBES = {
     "red": 12,
     "green": 13,
     "blue": 14,
 }
 
-# Part 1
+
 with open("aoc-input2.txt", "rt") as f:
     game_id_sum = 0
 
@@ -41,6 +42,6 @@ with open("aoc-input2.txt", "rt") as f:
             for cubes in draw_set.split(","):
                 count, color = cubes.split()
                 cube_min[color] = max((cube_min[color], int(count)))
-        power_sum += cube_min["red"]*cube_min["green"]*cube_min["blue"]
+        power_sum += cube_min["red"] * cube_min["green"] * cube_min["blue"]
 
 print(f"Part 2: {power_sum}")
