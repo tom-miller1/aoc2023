@@ -14,56 +14,57 @@ PT1_TEST = """...#......
 
 
 def expand(grid, factor=1):
-    repeat_rows = []
+    empty = []
     for (row_idx, row) in enumerate(grid):
         if len(set(row)) == 1:
-            repeat_rows.append(row_idx)
-    for row_idx in reversed(repeat_rows):
-        print(f"Copying row {row_idx}")
-        for _ in range(factor):
-            grid = np.insert(grid, row_idx, grid[row_idx], axis=0)
-    return grid
+            empty.append(row_idx)
 
-def manhattan(grid, pair):
-    p1 = np.array(np.where(grid == str(pair[0])))
-    p2 = np.array(np.where(grid == str(pair[1])))
-    return np.sum(np.abs(p1 - p2))
+    return empty
+
+def manhattan(empty_rows, empty_cols, pair, factor=2):
+    star1 = stars[pair[0]]
+    star2 = stars[pair[1]]
+    span_rows = [row for row in empty_rows if min(star1[0], star2[0]) < row < max(star1[0], star2[0])]
+    span_cols = [col for col in empty_cols if min(star1[1], star2[1]) < col < max(star1[1], star2[1])]
+    delta_x = abs(star1[0] - star2[0]) + (factor - 1) * len(span_rows)
+    delta_y = abs(star1[1] - star2[1]) + (factor - 1) * len(span_cols)
+    return delta_x + delta_y
 
 
 with open("aoc-input11.txt", "rt") as f:
     input = f.read()
-input = PT1_TEST
+#input = PT1_TEST
 
 starfield = []
-star_count = 0
-for line in input.splitlines():
+stars = {}
+star_count = 1
+for (row_idx, row) in enumerate(input.splitlines()):
     chars = []
-    for char in line:
+    for (col_idx, char) in enumerate(row):
         if char == "#":
-            char = str(star_count)
+            char = star_count
+            stars[star_count] = (row_idx, col_idx)
             star_count += 1
         chars.append(char)
     starfield.append(chars)
 
-base_starfield = np.array(starfield)
+starfield = np.array(starfield)
 # expand empty rows and columns
-starfield = base_starfield
-starfield = expand(starfield)
-starfield = np.transpose(expand(starfield.T))
+empty_rows = expand(starfield)
+empty_cols = expand(starfield.T)
+
+#print(empty_rows, empty_cols)
+#print(stars)
 
 total_distance = 0
-for pair in combinations(range(star_count), 2):
-    distance = manhattan(starfield, pair)
+for pair in combinations(stars, 2):
+    distance = manhattan(empty_rows, empty_cols, pair)
     total_distance += distance
-    #print(f"Pair: {pair}, {distance}")
-print(total_distance)
+print(f"Part 1: {total_distance}")
 
-# pt 2
-starfield = base_starfield
-starfield = expand(starfield, 999999)
-starfield = np.transpose(expand(starfield.T, 999999))
 total_distance = 0
-for pair in combinations(range(star_count), 2):
-    distance = manhattan(starfield, pair)
+for pair in combinations(stars, 2):
+    distance = manhattan(empty_rows, empty_cols, pair, 1000000)
     total_distance += distance
-print(total_distance)
+
+print(f"Part 2: {total_distance}")
